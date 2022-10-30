@@ -12,4 +12,5 @@ just edit the array
 Update logs:
 
 2022/10/30 - My GCP is not working so we have to work with Chronible bot instead
+
 2022/10/17 - Next update will connect to gcal stay tuned
