@@ -12,6 +12,23 @@ const DISCORD_API_GUILD_ID = process.env.DISCORD_API_GUILD_ID
 var running = false // this is for prevent multiple running
 var earliest_time = moment({hour: 10, minute: 0, second: 0}); // this might be replaced by cronjob function
 var latest_time = moment({hour: 16, minute: 0, second: 0}); // this might be replaced by cronjob function
+var finalMessage = ""
+var tempChecker = ""
+
+const OUTSIDE_HOUR_MAP = {
+    before: {
+        text: "Before Working hour 🥱",
+        checker: "before_hour"
+    },
+    after: {
+        text: "After hour 😴",
+        checker: "after_hour"
+    },
+    noExist: {
+        text: "No Event Exist. 🤔",
+        checker: "no_event_exist"
+    }
+}
 
 const runDiscordFunction = async () => {
 
@@ -47,31 +64,37 @@ const runDiscordFunction = async () => {
             // check if event is in range change status
             if (currentTime >= eventStartTime && currentTime <= eventEndTime) {
                 await setDiscordMessage(event.name, eventEndTime)
-            } else if (moment().isBefore(moment({hour: 8, minute: 0, second: 0})) && running == false) {
-                await setDiscordMessage("Before Working hour")
+            } else if (moment().isBefore(earliest_time) && running == false && tempChecker != OUTSIDE_HOUR_MAP.before.checker) {
+                // check if current time is before earliest time
+                tempChecker = OUTSIDE_HOUR_MAP.before.checker
+                await setDiscordMessage(tempChecker)
                 running = true
-            } else if (moment().isAfter(moment({hour: 17, minute: 0, second: 0})) && running == false) {
-                await setDiscordMessage("After hour")
+            } else if (moment().isAfter(latest_time) && running == false && tempChecker != OUTSIDE_HOUR_MAP.after.checker) {
+                // check if current time is after latest time
+                tempChecker = OUTSIDE_HOUR_MAP.after.checker
+                await setDiscordMessage(tempChecker)
                 running = true
             } 
         }   
     } else {
-        await setDiscordMessage("No Event Exist.")
+        // if no event exist
+        await setDiscordMessage(OUTSIDE_HOUR_MAP.noExist.checker)
     }
 }
 
 const setDiscordMessage = async (message, eventEndTime = moment("2022-02-02 08:00:00")) => {
     try {
-        let finalMessage = `${message}, until ${moment(eventEndTime).format('HH:mm')}`
-        if (message == "After hour") {
-            finalMessage = "After hour 😴"
-        } else if (message == "Before Working hour") {
-            finalMessage = "Before Working hour 🥱"
-        } else if (message == "No Event Exist.") {
-            finalMessage = "No Event Exist. 🤔"
+        // final message template
+        finalMessage = `${message}, until ${moment(eventEndTime).format('HH:mm')}`
+        if (message == OUTSIDE_HOUR_MAP.after.checker) {
+            finalMessage = OUTSIDE_HOUR_MAP.after.text
+        } else if (message == OUTSIDE_HOUR_MAP.before.checker) {
+            finalMessage = OUTSIDE_HOUR_MAP.before.text
+        } else if (message == OUTSIDE_HOUR_MAP.noExist.checker) {
+            finalMessage = OUTSIDE_HOUR_MAP.noExist.text
         } 
         console.log("Current message:", finalMessage);
-        await axios.patch('https://discord.com/api/v9/users/@me/settings', {
+        await axios.patch(`${DISCORD_API_BASE_URL}/users/@me/settings`, {
             "custom_status": {
                 "text": finalMessage,
             },
@@ -87,7 +110,7 @@ const setDiscordMessage = async (message, eventEndTime = moment("2022-02-02 08:0
     }
 }
 
-schedule.scheduleJob('*/5 * * * *', async function(){
+schedule.scheduleJob('* * * * *', async function(){
     console.log('its running at: ', moment().format('HH:mm:ss'))
     running = false
     if (!running) {
