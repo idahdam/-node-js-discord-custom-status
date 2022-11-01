@@ -1,3 +1,5 @@
+this is purely inspired by Clockwise bcs i found no clockwise for discord
+
 how to
 
 0. do `npm install`
@@ -11,6 +13,10 @@ just edit the array
 
 Update logs:
 
+2022/11/1 - Added before working hours and after working hours
+
 2022/10/30 - My GCP is not working so we have to work with Chronible bot instead
 
 2022/10/17 - Next update will connect to gcal stay tuned
+
+
