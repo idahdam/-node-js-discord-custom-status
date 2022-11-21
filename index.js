@@ -62,14 +62,16 @@ const runDiscordFunction = async () => {
             }
 
             // check if event is in range change status
-            if (currentTime >= eventStartTime && currentTime <= eventEndTime) {
-                await setDiscordMessage(event.name, eventEndTime)
-            } else if (moment().isBefore(earliest_time) && running == false && tempChecker != OUTSIDE_HOUR_MAP.before.checker) {
+            if (currentTime >= eventStartTime && currentTime <= eventEndTime && running == false && tempChecker != event.name) {
+                tempChecker = event.name
+                await setDiscordMessage(tempChecker, eventEndTime)
+                running = true
+            } else if (currentTime < earliest_time && currentTime <= latest_time && moment().isBefore(latest_time) && running == false && tempChecker !== OUTSIDE_HOUR_MAP.before.checker) {
                 // check if current time is before earliest time
                 tempChecker = OUTSIDE_HOUR_MAP.before.checker
                 await setDiscordMessage(tempChecker)
                 running = true
-            } else if (moment().isAfter(latest_time) && running == false && tempChecker != OUTSIDE_HOUR_MAP.after.checker) {
+            } else if (currentTime > latest_time && running == false && tempChecker !== OUTSIDE_HOUR_MAP.after.checker) {
                 // check if current time is after latest time
                 tempChecker = OUTSIDE_HOUR_MAP.after.checker
                 await setDiscordMessage(tempChecker)
@@ -110,7 +112,7 @@ const setDiscordMessage = async (message, eventEndTime = moment("2022-02-02 08:0
     }
 }
 
-schedule.scheduleJob('* * * * *', async function(){
+schedule.scheduleJob('*/5 * * * *', async function(){
     console.log('its running at: ', moment().format('HH:mm:ss'))
     running = false
     if (!running) {
