@@ -62,11 +62,11 @@ const runDiscordFunction = async () => {
             }
 
             // check if event is in range change status
-            if (currentTime >= eventStartTime && currentTime <= eventEndTime && running == false && tempChecker != event.name) {
+            if (currentTime.hours() >= eventStartTime.hours() && currentTime.hours() <= eventEndTime.hours() && running == false && tempChecker !== event.name) {
                 tempChecker = event.name
                 await setDiscordMessage(tempChecker, eventEndTime)
                 running = true
-            } else if (currentTime < earliest_time && currentTime <= latest_time && moment().isBefore(latest_time) && running == false && tempChecker !== OUTSIDE_HOUR_MAP.before.checker) {
+            } else if (currentTime.hours() < earliest_time.hours() && currentTime.hours() <= latest_time.hours() && running == false && tempChecker !== OUTSIDE_HOUR_MAP.before.checker) {
                 // check if current time is before earliest time
                 tempChecker = OUTSIDE_HOUR_MAP.before.checker
                 await setDiscordMessage(tempChecker)
