@@ -2,6 +2,7 @@ const schedule = require("node-schedule");
 const axios = require("axios");
 const moment = require("moment");
 const dotenv = require("dotenv");
+const { sendScheduleOfTheDay } = require("./schedule-bot");
 dotenv.config();
 
 moment.locale("id"); // this is for indonesian time zone
@@ -14,6 +15,10 @@ var earliest_time = moment({ hour: 10, minute: 0, second: 0 }); // this might be
 var latest_time = moment({ hour: 16, minute: 0, second: 0 }); // this might be replaced by cronjob function
 var finalMessage = "";
 var tempChecker = "";
+var sendScheduleTime = {
+  hour: 8,
+  minute: 0,
+};
 
 const OUTSIDE_HOUR_MAP = {
   before: {
@@ -43,6 +48,14 @@ const runDiscordFunction = async () => {
 
   const date = new Date();
   const currentTime = moment(date);
+
+  // Check if its `sendScheduleTime` to send daily schedule
+  if (
+    currentTime.hours() == sendScheduleTime.hour &&
+    currentTime.minutes() == sendScheduleTime.minute
+  ) {
+    await sendScheduleOfTheDay(hitEventList);
+  }
 
   if (hitEventList.data.length > 0) {
     // looping through event list
