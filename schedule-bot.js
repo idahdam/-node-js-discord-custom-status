@@ -21,6 +21,13 @@ const sendScheduleOfTheDay = async (events) => {
         }
       }
 
+      if (fields.length == 0) {
+        fields.push({
+          name: "No schedule for today!",
+          value: "Enjoy your day!",
+        });
+      }
+
       await axios.post(process.env.DISCORD_SCHEDULE_WEBHOOK_URL, {
         username: "Schedule Bot 📅",
         avatar_url: "https://i.imgur.com/4M34hi2.png",
